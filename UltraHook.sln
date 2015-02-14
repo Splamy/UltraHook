@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UltraHook", "UltraHook\UltraHook.csproj", "{F760F103-841E-40F9-B753-9B98CCCC769A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UltraHookInject", "UltraHookInject\UltraHookInject.csproj", "{D22EF9C5-2638-4DAB-A08C-ACB760D65427}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F760F103-841E-40F9-B753-9B98CCCC769A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F760F103-841E-40F9-B753-9B98CCCC769A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F760F103-841E-40F9-B753-9B98CCCC769A}.Debug|x86.ActiveCfg = Debug|x86
+		{F760F103-841E-40F9-B753-9B98CCCC769A}.Debug|x86.Build.0 = Debug|x86
+		{F760F103-841E-40F9-B753-9B98CCCC769A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F760F103-841E-40F9-B753-9B98CCCC769A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F760F103-841E-40F9-B753-9B98CCCC769A}.Release|x86.ActiveCfg = Release|x86
+		{F760F103-841E-40F9-B753-9B98CCCC769A}.Release|x86.Build.0 = Release|x86
+		{D22EF9C5-2638-4DAB-A08C-ACB760D65427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D22EF9C5-2638-4DAB-A08C-ACB760D65427}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D22EF9C5-2638-4DAB-A08C-ACB760D65427}.Debug|x86.ActiveCfg = Debug|x86
+		{D22EF9C5-2638-4DAB-A08C-ACB760D65427}.Debug|x86.Build.0 = Debug|x86
+		{D22EF9C5-2638-4DAB-A08C-ACB760D65427}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D22EF9C5-2638-4DAB-A08C-ACB760D65427}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D22EF9C5-2638-4DAB-A08C-ACB760D65427}.Release|x86.ActiveCfg = Release|x86
+		{D22EF9C5-2638-4DAB-A08C-ACB760D65427}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
