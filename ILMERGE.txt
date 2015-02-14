@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\ILMerge\ILMerge.exe" /keyfile:UH.snk /targetplatform:v4 /out:./spec/UltraHook.dll UltraHook.dll SharpDX.dll SharpDX.DXGI.dll SharpDX.Direct3D10.dll SharpDX.Direct3D9.dll SharpDX.D3DCompiler.dll EasyHook.dll
