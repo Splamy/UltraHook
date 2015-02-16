@@ -6,26 +6,24 @@ using System.Reflection;
 
 using EasyHook;
 
+/*
+ * Based on spazzarama's DirectX Recorder from here:
+ * https://github.com/spazzarama/Direct3DHook/
+ */
+
 namespace UltraHook
 {
 	public class Core : IEntryPoint
 	{
-		Connection Interface;
-		public CoreStatus currentStatus;
 		ID3DControl loadedControl;
 
 		public Core(RemoteHooking.IContext param, string pChannelName)
 		{
-			currentStatus = CoreStatus.uninitialized;
-			Interface = RemoteHooking.IpcConnectClient<Connection>(pChannelName);
-
-			currentStatus = CoreStatus.coreOK;
+			ID3DControl.connection = RemoteHooking.IpcConnectClient<Connection>(pChannelName);
 		}
 
 		public void Run(RemoteHooking.IContext param, string pChannelName)
 		{
-			currentStatus = CoreStatus.runOK;
-
 			startHook();
 		}
 
@@ -37,10 +35,10 @@ namespace UltraHook
 			IntPtr d3D11Loaded = IntPtr.Zero;
 			//IntPtr d3D11_1Loaded = IntPtr.Zero;
 
-			d3D9Loaded = Tools.GetModuleHandle("d3d9.dll");
-			d3D10Loaded = Tools.GetModuleHandle("d3d10.dll");
+			d3D9Loaded = DXTools.GetModuleHandle("d3d9.dll");
+			d3D10Loaded = DXTools.GetModuleHandle("d3d10.dll");
 			//d3D10_1Loaded = Tools.GetModuleHandle("d3d10_1.dll");
-			d3D11Loaded = Tools.GetModuleHandle("d3d11.dll");
+			d3D11Loaded = DXTools.GetModuleHandle("d3d11.dll");
 			//d3D11_1Loaded = Tools.GetModuleHandle("d3d11_1.dll");
 
 			if (d3D9Loaded != IntPtr.Zero)
@@ -52,11 +50,15 @@ namespace UltraHook
 
 			if (loadedControl != null)
 			{
-				Core.Log(loadedControl.Name);
+				Core.Log("Found: " + loadedControl.Name);
 
 				try
 				{
 					loadedControl.Hook();
+					Core.Log("Hook started!");
+
+					while (!ID3DControl.closed)
+						System.Threading.Thread.Sleep(10);
 				}
 				catch (Exception e)
 				{
@@ -69,14 +71,5 @@ namespace UltraHook
 		{
 			System.IO.File.AppendAllText(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "output.txt"), s + "\r\n");
 		}
-	}
-
-	public enum CoreStatus
-	{
-		uninitialized,
-		nomainwindowfound,
-
-		coreOK,
-		runOK,
 	}
 }

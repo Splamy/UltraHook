@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.IO;
-using System.Drawing.Imaging;
 
 using EasyHook;
 using SharpDX.Direct3D;
@@ -11,27 +10,24 @@ using SharpDX.Direct3D9;
 
 namespace UltraHook
 {
-	internal class HookD3D_09 : ID3DControl
+	class HookD3D_09 : ID3DControl
 	{
-		public string Name { get; set; }
+		public override string Name { get { return "Direct3D 9"; } protected set { } }
 
 		LocalHook Direct3DDevice_EndSceneHook = null;
 		LocalHook Direct3DDevice_ResetHook = null;
 
 		FontDescription fdesc;
-		Font dxFont = null;
-
-		Connection con;
-		bool closed = false;
+		//Font dxFont = null;
 
 		CHBuild[] prebakedCH = new CHBuild[Connection.CH_END];
 
 		public HookD3D_09()
 		{
-			Name = "Direct3D 9";
+
 		}
 
-		public void Hook()
+		public override void Hook()
 		{
 			List<IntPtr> id3dDeviceFunctionAddresses = new List<IntPtr>();
 			Device device;
@@ -40,11 +36,9 @@ namespace UltraHook
 			{
 				using (device = new Device(d3d, 0, DeviceType.NullReference, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, new PresentParameters() { BackBufferWidth = 1, BackBufferHeight = 1 }))
 				{
-					id3dDeviceFunctionAddresses.AddRange(Tools.GetVTblAddresses(device.NativePointer, 119));
+					id3dDeviceFunctionAddresses.AddRange(DXTools.GetVTblAddresses(device.NativePointer, 119));
 				}
 			}
-
-			con = RemoteHooking.IpcConnectClient<Connection>("uh_data");
 
 			//System.Windows.Forms.MessageBox.Show(id3dDeviceFunctionAddresses[42].ToString());
 			Direct3DDevice_EndSceneHook = LocalHook.Create(
@@ -75,9 +69,6 @@ namespace UltraHook
 				Weight = FontWeight.Normal,
 			};
 			#endregion
-
-			while (!closed)
-				System.Threading.Thread.Sleep(10);
 		}
 
 		int ResetHook(IntPtr devicePtr, ref PresentParameters presentParameters)
@@ -85,7 +76,7 @@ namespace UltraHook
 			Device device = (Device)devicePtr;
 			try
 			{
-				dxFont = null;
+				//dxFont = null;
 				device.Reset(presentParameters);
 				return SharpDX.Result.Ok.Code;
 			}
@@ -105,40 +96,37 @@ namespace UltraHook
 
 			if (!closed)
 			{
-				if (con.closing)
-				{
-					closed = true;
-					con.closing = false;
-				}
-
-				//initialize font
+				//don't initialize font, it MAY crash
 				//if (dxFont == null)
 				//	dxFont = new Font(device, fdesc);
 
-				if (prebakedCH[con.CHT] == null)
+				if (prebakedCH[connection.CHT] == null)
 				{
-					switch (con.CHT)
+					switch (connection.CHT)
 					{
-					case Connection.CH_none: prebakedCH[con.CHT] = CHBuild.DefaultNone; break;
-					case Connection.CH_lines: prebakedCH[con.CHT] = genOffset(CHBuild.DefaultLines); break;
-					case Connection.CH_thinlines: prebakedCH[con.CHT] = genOffset(CHBuild.DefaultThinLines); break;
-					case Connection.CH_square: prebakedCH[con.CHT] = genOffset(CHBuild.DefaultSquare); break;
-					case Connection.CH_custom: prebakedCH[con.CHT] = genOffset(CHBuilder.ToCHBuild(con.customCHBD)); break; //
+					case Connection.CH_none: prebakedCH[connection.CHT] = CHBuild.DefaultNone; break;
+					case Connection.CH_lines: prebakedCH[connection.CHT] = genOffset(CHBuild.DefaultLines); break;
+					case Connection.CH_thinlines: prebakedCH[connection.CHT] = genOffset(CHBuild.DefaultThinLines); break;
+					case Connection.CH_square: prebakedCH[connection.CHT] = genOffset(CHBuild.DefaultSquare); break;
+					case Connection.CH_custom: prebakedCH[connection.CHT] = genOffset(CHBuilder.ToCHBuild(connection.customCHBD)); break; //
 					default: break; //
 					}
 					prebakedCH[Connection.CH_DOT] = genOffset(CHBuild.DefaultDot);
 				}
 
-				if (con.drawDot)
+				if (connection.drawDot)
 					device.Clear(ClearFlags.Target, prebakedCH[Connection.CH_DOT].colors[0], 0, 0, prebakedCH[Connection.CH_DOT].rects[0]);
 
-				CHBuild selected = prebakedCH[con.CHT];
+				CHBuild selected = prebakedCH[connection.CHT];
 				if (selected != null)
 				{
 					for (int i = 0; i < selected.colors.Length; i++)
 						device.Clear(ClearFlags.Target, selected.colors[i], 0, 0, selected.rects[i]);
 					//dxFont.DrawText(null, "bluub", con.X / 2 - 3, con.Y / 2 - 19, SharpDX.Color.White);
 				}
+
+				//http://www.unknowncheats.me/forum/d3d-tutorials-and-source/58821-simple-2d-circle-using-drawprimitiveup.html
+				//device.DrawUserPrimitives(PrimitiveType.LineStrip)
 			}
 
 			device.EndScene();
@@ -160,8 +148,8 @@ namespace UltraHook
 				{
 					SharpDX.Rectangle cpy = input.rects[i][j];
 					ret.rects[i][j] = new SharpDX.Rectangle(
-						con.X / 2 - ret.size / 2 + cpy.X,
-						con.Y / 2 - ret.size / 2 + cpy.Y,
+						connection.X / 2 - ret.size / 2 + cpy.X,
+						connection.Y / 2 - ret.size / 2 + cpy.Y,
 						cpy.Width,
 						cpy.Height);
 				}
