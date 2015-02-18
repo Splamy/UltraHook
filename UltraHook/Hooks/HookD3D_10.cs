@@ -10,13 +10,13 @@ using SharpDX.Direct3D10;
 
 namespace UltraHook
 {
-    class HookD3D_10 : ID3DControl
+	internal class HookD3D_10 : D3DHook
     {
 		public override string Name { get { return "Direct3D 10"; } protected set { } }
 
         public HookD3D_10()
         {
-            
+			connection.dxVersion = DXVersion.DX10;
         }
 
 		public override void Hook()

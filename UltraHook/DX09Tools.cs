@@ -7,7 +7,7 @@ using SharpDX;
 
 namespace UltraHook
 {
-	public class ColorPalette
+	internal class ColorPalette
 	{
 		public static readonly ColorBGRA ColorWhite = new ColorBGRA(255, 255, 255, 255);
 		public static readonly ColorBGRA ColorBlack = new ColorBGRA(0, 0, 0, 255);
@@ -27,30 +27,87 @@ namespace UltraHook
 		public static readonly ColorBGRA ColorLightBlue = new ColorBGRA(0, 255, 127, 255);
 	}
 
-	public class CHBuild
+	internal class CHBuild
 	{
 		public Rectangle[][] rects;
 		public ColorBGRA[] colors;
 		public int size;
 
-		public CHBuild CloneX()
+		public CHBuild()
 		{
-			CHBuild clone = new CHBuild();
-			clone.rects = new Rectangle[rects.Length][];
+			rects = new Rectangle[0][];
+			colors = new ColorBGRA[0];
+			size = 0;
+		}
+
+		public CHBuild(Rectangle[][] _rects, ColorBGRA[] _colors, int _size)
+		{
+			rects = _rects;
+			colors = _colors;
+			size = _size;
+		}
+
+		public CHBuild(int[] data)
+		{
+			if (data == null) throw new ArgumentNullException("data must not be null");
+
+			size = data[0];
+			colors = new ColorBGRA[data[1]];
+
+			int pos = 2;
+			for (int i = 0; i < colors.Length; i++)
+			{
+				colors[i] = ShiftInt(data[pos]);
+				pos++;
+			}
+
+			rects = new Rectangle[data[pos]][];
+			pos++;
 			for (int i = 0; i < rects.Length; i++)
-				clone.rects[i] = (Rectangle[])rects[i].Clone();
-			clone.colors = (ColorBGRA[])colors.Clone();
-			clone.size = size;
-			return clone;
+			{
+				rects[i] = new Rectangle[data[pos]];
+				pos++;
+				for (int j = 0; j < rects[i].Length; j++)
+				{
+					rects[i][j] = new Rectangle(data[pos], data[pos + 1], data[pos + 2], data[pos + 3]);
+					pos += 4;
+				}
+			}
+		}
+
+		public CHBuild genOffset()
+		{
+			CHBuild ret = new CHBuild();
+			ret.rects = new SharpDX.Rectangle[rects.Length][];
+			ret.colors = (SharpDX.ColorBGRA[])colors.Clone();
+			ret.size = size;
+			for (int i = 0; i < rects.Length; i++)
+			{
+				ret.rects[i] = new SharpDX.Rectangle[rects[i].Length];
+				for (int j = 0; j < ret.rects[i].Length; j++)
+				{
+					SharpDX.Rectangle cpy = rects[i][j];
+					ret.rects[i][j] = new SharpDX.Rectangle(
+						D3DHook.connection.X / 2 - ret.size / 2 + cpy.X,
+						D3DHook.connection.Y / 2 - ret.size / 2 + cpy.Y,
+						cpy.Width,
+						cpy.Height);
+				}
+			}
+			return ret;
+		}
+
+		private static ColorBGRA ShiftInt(int i)
+		{
+			byte B = (byte)(i & 0xFF); i >>= 8;
+			byte G = (byte)(i & 0xFF); i >>= 8;
+			byte R = (byte)(i & 0xFF); i >>= 8;
+			byte A = (byte)(i & 0xFF);
+			return new ColorBGRA(R, G, B, A);
 		}
 
 		#region DefaultNone
-		public static readonly CHBuild DefaultNone = new CHBuild()
-		{
-			rects = new Rectangle[0][],
-			colors = new ColorBGRA[0],
-			size = 0
-		};
+		public static readonly CHBuild DefaultNone = new CHBuild();
 		#endregion
 
 		#region DefaultLines
@@ -115,37 +172,6 @@ namespace UltraHook
 
 	public class CHBuilder
 	{
-		public static CHBuild ToCHBuild(int[] data)
-		{
-			if (data == null) return null;
-
-			CHBuild tmpret = new CHBuild();
-			tmpret.size = data[0];
-			tmpret.colors = new ColorBGRA[data[1]];
-
-			int pos = 2;
-			for (int i = 0; i < tmpret.colors.Length; i++)
-			{
-				tmpret.colors[i] = ShiftInt(data[pos]);
-				pos++;
-			}
-
-			tmpret.rects = new Rectangle[data[pos]][];
-			pos++;
-			for (int i = 0; i < tmpret.rects.Length; i++)
-			{
-				tmpret.rects[i] = new Rectangle[data[pos]];
-				pos++;
-				for (int j = 0; j < tmpret.rects[i].Length; j++)
-				{
-					tmpret.rects[i][j] = new Rectangle(data[pos], data[pos + 1], data[pos + 2], data[pos + 3]);
-					pos += 4;
-				}
-			}
-
-			return tmpret;
-		}
-
 		public static int[] FromExtern(System.Drawing.Rectangle[][] rec, System.Drawing.Color[] col, int size)
 		{
 			if (rec == null || col == null) return null;
@@ -175,15 +201,6 @@ namespace UltraHook
 				});
 			});
 			return tmpret;
-		}
-
-		private static ColorBGRA ShiftInt(int i)
-		{
-			byte B = (byte)(i & 0xFF); i >>= 8;
-			byte G = (byte)(i & 0xFF); i >>= 8;
-			byte R = (byte)(i & 0xFF); i >>= 8;
-			byte A = (byte)(i & 0xFF);
-			return new ColorBGRA(R, G, B, A);
 		}
 	}
 }

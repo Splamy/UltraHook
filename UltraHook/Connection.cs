@@ -8,38 +8,50 @@ namespace UltraHook
 	{
 		public int X;
 		public int Y;
-		public int CHT;
+		public CHType chType;
 		public bool drawDot;
-		public string drawString;
 		public bool closing;
-		public int[] customCHBD; // custom CrossHair Build Data
+		public bool refreshData;
+		public int getFPS;
+		public int limitFPS;
+		public DXVersion dxVersion;
+		public object customCHBD; // 
+		/*
+		 * custom CrossHair Build Data Explanation, use:
+		 * - int[] for DX9 with the CHBuild Constructor.
+		 * - System.IO.Stream for DX11 with an Image.
+		 */
 
 		public Connection()
 		{
 			X = Y = 100;
-			CHT = CH_none;
+			chType = CHType.none;
 			drawDot = false;
-			drawString = string.Empty;
 			closing = false;
+			refreshData = false;
+			limitFPS = -1;
+			dxVersion = DXVersion.unknown;
 		}
+	}
 
-		public Connection(int _X, int _Y, int _CHT, bool _dd, string _ds, int[] _cchbd)
-		{
-			X = _X; Y = _Y; CHT = _CHT; drawDot = _dd; drawString = _ds; customCHBD = _cchbd;
-			closing = false;
-		}
+	public enum CHType : int
+	{
+		none,
+		lines,
+		thinlines,
+		square,
+		custom,
+		DOT,
+		END
+	}
 
-		public Connection Clone()
-		{
-			return new Connection(X, Y, CHT, drawDot, drawString, (int[])customCHBD.Clone());
-		}
-
-		public const int CH_none = 0;
-		public const int CH_lines = 1;
-		public const int CH_thinlines = 2;
-		public const int CH_square = 3;
-		public const int CH_custom = 4;
-		public const int CH_DOT = 5;
-		public const int CH_END = 6;
+	public enum DXVersion : byte
+	{
+		unknown,
+		DX09,
+		DX10,
+		DX10_1,
+		DX11,
+		DX11_1
 	}
 }

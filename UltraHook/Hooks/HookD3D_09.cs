@@ -10,7 +10,7 @@ using SharpDX.Direct3D9;
 
 namespace UltraHook
 {
-	class HookD3D_09 : ID3DControl
+	internal class HookD3D_09 : D3DHook
 	{
 		public override string Name { get { return "Direct3D 9"; } protected set { } }
 
@@ -20,11 +20,12 @@ namespace UltraHook
 		FontDescription fdesc;
 		//Font dxFont = null;
 
-		CHBuild[] prebakedCH = new CHBuild[Connection.CH_END];
+		CHBuild[] prebakedCH = new CHBuild[(int)CHType.END];
+		FPSTool fpsTool = new FPSTool();
 
 		public HookD3D_09()
 		{
-
+			connection.dxVersion = DXVersion.DX09;
 		}
 
 		public override void Hook()
@@ -100,30 +101,36 @@ namespace UltraHook
 				//if (dxFont == null)
 				//	dxFont = new Font(device, fdesc);
 
-				if (prebakedCH[connection.CHT] == null)
+				int chTypei = (int)connection.chType;
+				if (prebakedCH[chTypei] == null || connection.refreshData)
 				{
-					switch (connection.CHT)
+					switch (connection.chType)
 					{
-					case Connection.CH_none: prebakedCH[connection.CHT] = CHBuild.DefaultNone; break;
-					case Connection.CH_lines: prebakedCH[connection.CHT] = genOffset(CHBuild.DefaultLines); break;
-					case Connection.CH_thinlines: prebakedCH[connection.CHT] = genOffset(CHBuild.DefaultThinLines); break;
-					case Connection.CH_square: prebakedCH[connection.CHT] = genOffset(CHBuild.DefaultSquare); break;
-					case Connection.CH_custom: prebakedCH[connection.CHT] = genOffset(CHBuilder.ToCHBuild(connection.customCHBD)); break; //
-					default: break; //
+					case CHType.none: prebakedCH[chTypei] = CHBuild.DefaultNone; break;
+					case CHType.lines: prebakedCH[chTypei] = CHBuild.DefaultLines.genOffset(); break;
+					case CHType.thinlines: prebakedCH[chTypei] = CHBuild.DefaultThinLines.genOffset(); break;
+					case CHType.square: prebakedCH[chTypei] = CHBuild.DefaultSquare.genOffset(); break;
+					case CHType.custom:
+						int[] ibuff = connection.customCHBD as int[];
+						if (ibuff != null) prebakedCH[chTypei] = new CHBuild(ibuff).genOffset();
+						break;
 					}
-					prebakedCH[Connection.CH_DOT] = genOffset(CHBuild.DefaultDot);
+					prebakedCH[(int)CHType.DOT] = CHBuild.DefaultDot.genOffset();
 				}
 
 				if (connection.drawDot)
-					device.Clear(ClearFlags.Target, prebakedCH[Connection.CH_DOT].colors[0], 0, 0, prebakedCH[Connection.CH_DOT].rects[0]);
+					device.Clear(ClearFlags.Target, prebakedCH[(int)CHType.DOT].colors[0], 0, 0, prebakedCH[(int)CHType.DOT].rects[0]);
 
-				CHBuild selected = prebakedCH[connection.CHT];
+				CHBuild selected = prebakedCH[chTypei];
 				if (selected != null)
 				{
 					for (int i = 0; i < selected.colors.Length; i++)
 						device.Clear(ClearFlags.Target, selected.colors[i], 0, 0, selected.rects[i]);
 					//dxFont.DrawText(null, "bluub", con.X / 2 - 3, con.Y / 2 - 19, SharpDX.Color.White);
 				}
+
+				connection.getFPS = fpsTool.getFPS();
+				fpsTool.limitFPS();
 
 				//http://www.unknowncheats.me/forum/d3d-tutorials-and-source/58821-simple-2d-circle-using-drawprimitiveup.html
 				//device.DrawUserPrimitives(PrimitiveType.LineStrip)
@@ -133,29 +140,7 @@ namespace UltraHook
 			return SharpDX.Result.Ok.Code;
 		}
 
-		public CHBuild genOffset(CHBuild input)
-		{
-			if (input == null) return null;
 
-			CHBuild ret = new CHBuild();
-			ret.rects = new SharpDX.Rectangle[input.rects.Length][];
-			ret.colors = (SharpDX.ColorBGRA[])input.colors.Clone();
-			ret.size = input.size;
-			for (int i = 0; i < input.rects.Length; i++)
-			{
-				ret.rects[i] = new SharpDX.Rectangle[input.rects[i].Length];
-				for (int j = 0; j < ret.rects[i].Length; j++)
-				{
-					SharpDX.Rectangle cpy = input.rects[i][j];
-					ret.rects[i][j] = new SharpDX.Rectangle(
-						connection.X / 2 - ret.size / 2 + cpy.X,
-						connection.Y / 2 - ret.size / 2 + cpy.Y,
-						cpy.Width,
-						cpy.Height);
-				}
-			}
-			return ret;
-		}
 
 		[UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
 		delegate int Direct3D9Device_EndSceneDelegate(IntPtr device);

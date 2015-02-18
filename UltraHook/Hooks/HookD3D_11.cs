@@ -11,7 +11,7 @@ using SharpDX.DXGI;
 
 namespace UltraHook
 {
-	class HookD3D_11 : ID3DControl
+	internal class HookD3D_11 : D3DHook
 	{
 		public override string Name { get { return "Direct3D 11"; } protected set { } }
 
@@ -22,10 +22,11 @@ namespace UltraHook
 		//LocalHook DXGISwapChain_ResizeTargetHook = null;
 
 		DX11GUI dx11gui = null;
+		FPSTool fpsTool = new FPSTool();
 
 		public HookD3D_11()
 		{
-
+			connection.dxVersion = DXVersion.DX11;
 		}
 
 		public override void Hook()
@@ -71,12 +72,8 @@ namespace UltraHook
 			new DXGISwapChain_ResizeTargetDelegate(ResizeTargetHook),
 			this);*/
 
-
 			DXGISwapChain_PresentHook.ThreadACL.SetExclusiveACL(new Int32[1]);
 			//DXGISwapChain_ResizeTargetHook.ThreadACL.SetExclusiveACL(new Int32[1]);
-
-			while (!closed)
-				System.Threading.Thread.Sleep(10);
 		}
 
 		public static SwapChainDescription CreateSwapChainDescription(IntPtr windowHandle)
@@ -105,12 +102,14 @@ namespace UltraHook
 					dx11gui = new DX11GUI(swapChain);
 
 				dx11gui.RenderCrosshair();
+
+				connection.getFPS = fpsTool.getFPS();
+				fpsTool.limitFPS();
 			}
 
 			swapChain.Present(syncInterval, flags);
 			return SharpDX.Result.Ok.Code;
 		}
-
 
 		[UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
 		delegate int DXGISwapChain_PresentDelegate(IntPtr swapChainPtr, int syncInterval, /* int */ SharpDX.DXGI.PresentFlags flags);

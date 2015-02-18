@@ -9,25 +9,21 @@ using SharpDX.Toolkit.Graphics;
 
 namespace UltraHook
 {
-	public class DX11GUI
+	internal class DX11GUI
 	{
-		//SharpDX.DXGI.SwapChain swapChain;
-		//Device device;
 		GraphicsDevice graphics;
 		Texture image;
 		SpriteBatch sprb;
 		SharpDX.Toolkit.Graphics.BlendState blState = null;
 		bool initok = false;
+		bool initcrash = false;
 
 		public DX11GUI(SharpDX.DXGI.SwapChain _swapChain)
 		{
-			//swapChain = _swapChain;
-			Device device = _swapChain.GetDevice<Device>();
-
 			try
 			{
+				Device device = _swapChain.GetDevice<Device>();
 				graphics = GraphicsDevice.New(device);
-				image = Texture.Load(graphics, "crosshair.png");
 				sprb = new SpriteBatch(graphics);
 
 				blState = SharpDX.Toolkit.Graphics.BlendState.New(
@@ -38,18 +34,42 @@ namespace UltraHook
 					BlendOption.One,
 					BlendOption.Zero,
 					BlendOperation.Add);
-
-				initok = true;
 			}
 			catch (Exception ex)
 			{
-				Core.Log("DX11 GUI Failed: " + ex.Message);
+				initcrash = true;
+				Core.Log("DX11 GUI initcrash: " + ex.Message);
 			}
+		}
+
+		private bool loadData()
+		{
+			if (D3DHook.connection.refreshData || !initok)
+			{
+				initok = false;
+				try
+				{
+					System.IO.Stream imgInput = D3DHook.connection.customCHBD as System.IO.Stream;
+					if (imgInput == null) return false;
+					image = Texture.Load(graphics, imgInput); // "crosshair.png"
+
+					initok = true;
+					D3DHook.connection.refreshData = false;
+				}
+				catch (Exception ex)
+				{
+					initcrash = true;
+					Core.Log("DX11 GUI loadData failed: " + ex.Message);
+					return false;
+				}
+			}
+			return true;
 		}
 
 		public void RenderCrosshair()
 		{
-			if (!initok) return;
+			if (initcrash) return;
+			if (!loadData()) return;
 
 			sprb.Begin(SpriteSortMode.Deferred, blState);
 			sprb.Draw(image, new RectangleF(0, 0, 100, 100), Color.White);
@@ -57,7 +77,7 @@ namespace UltraHook
 		}
 	}
 
-	public enum DXGISwapChainVTbl : short
+	internal enum DXGISwapChainVTbl : short
 	{
 		// IUnknown
 		QueryInterface = 0,

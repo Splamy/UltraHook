@@ -15,19 +15,19 @@ namespace UltraHook
 {
 	public class Core : IEntryPoint
 	{
-		ID3DControl loadedControl;
+		internal D3DHook loadedControl;
 
-		public Core(RemoteHooking.IContext param, string pChannelName)
+		internal Core(RemoteHooking.IContext param, string pChannelName)
 		{
-			ID3DControl.connection = RemoteHooking.IpcConnectClient<Connection>(pChannelName);
+			D3DHook.connection = RemoteHooking.IpcConnectClient<Connection>(pChannelName);
 		}
 
-		public void Run(RemoteHooking.IContext param, string pChannelName)
+		internal void Run(RemoteHooking.IContext param, string pChannelName)
 		{
 			startHook();
 		}
 
-		public void startHook()
+		internal void startHook()
 		{
 			IntPtr d3D9Loaded = IntPtr.Zero;
 			IntPtr d3D10Loaded = IntPtr.Zero;
@@ -57,7 +57,7 @@ namespace UltraHook
 					loadedControl.Hook();
 					Core.Log("Hook started!");
 
-					while (!ID3DControl.closed)
+					while (!D3DHook.closed)
 						System.Threading.Thread.Sleep(10);
 				}
 				catch (Exception e)

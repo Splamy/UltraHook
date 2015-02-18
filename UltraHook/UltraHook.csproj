@@ -106,10 +106,11 @@
     <Compile Include="Core.cs" />
     <Compile Include="DX11Tools.cs" />
     <Compile Include="DXTools.cs" />
+    <Compile Include="FPSTool.cs" />
     <Compile Include="Hooks\HookD3D_09.cs" />
     <Compile Include="Hooks\HookD3D_10.cs" />
     <Compile Include="Hooks\HookD3D_11.cs" />
-    <Compile Include="Hooks\ID3DControl.cs" />
+    <Compile Include="Hooks\D3DHook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DX09Tools.cs" />
   </ItemGroup>
