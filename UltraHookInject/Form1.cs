@@ -27,6 +27,15 @@ namespace UltraHookInject
 		Rectangle[][] buildrect;
 		Color[] buildcol;
 
+		/*ResizeStage rsStage = ResizeStage.Sleeping;
+		int rsSpeed = 0;
+		int rsTarget = 0;
+		int rsOverlap = 0;
+		bool rsMaximizing = true;*/
+		ResizeTool rtWidth = new ResizeTool();
+		ResizeTool rtHeight = new ResizeTool();
+		Size rsMinSize = new Size(350, 135);
+
 		bool getOnce = false;
 
 		// init/deinit ////////////////////////////////////////////////////////
@@ -35,6 +44,7 @@ namespace UltraHookInject
 		{
 			InitializeComponent();
 
+			// todo load/save all stuff
 			conMain = new Connection();
 			if (File.Exists("config.ini"))
 			{
@@ -85,6 +95,8 @@ namespace UltraHookInject
 
 		public void timer1_Tick(object sender, EventArgs e)
 		{
+			// todo logical injecting
+
 			Process[] res = Process.GetProcessesByName(targetproc);
 			if (res.Length == 0)
 			{
@@ -377,6 +389,14 @@ namespace UltraHookInject
 
 		public void resizer_Tick(object sender, EventArgs e)
 		{
+			if (!rtHeight.IsActive && !rtWidth.IsActive)
+				resizer.Interval = 100;
+			else
+			{
+				this.Height = rtHeight.DoResizeStep(this.Height);
+				this.Width = rtWidth.DoResizeStep(this.Width);
+			}
+
 			if (conMain.dxVersion == DXVersion.unknown) return;
 
 			int locGetFPS = conMain.getFPS;
@@ -393,6 +413,78 @@ namespace UltraHookInject
 			getOnce = true;
 		}
 
+		public void DoResize(int tWidth, int tHeigth)
+		{
+			rtWidth.Set(this.Width, tWidth);
+			rtHeight.Set(this.Height, tHeigth);
+			resizer.Interval = 1;
+			resizer.Start();
+		}
 
+		private class ResizeTool
+		{
+			private ResizeStage rsStage;
+			private int rsSpeed;
+			private int rsTarget;
+			private int rsOverlap;
+			private bool rsMaximizing;
+			public bool IsActive { get { return rsStage != ResizeStage.Sleeping; } protected set { } }
+
+			public ResizeTool()
+			{
+				rsStage = ResizeStage.Sleeping;
+			}
+
+			public void Set(int current, int target)
+			{
+				rsTarget = target;
+				rsSpeed = 0;
+				rsMaximizing = current < rsTarget;
+				if (rsMaximizing) rsOverlap = rsTarget + ((rsTarget - current) / 3);
+				else rsOverlap = rsTarget - ((current - rsTarget) / 3);
+				rsStage = ResizeStage.Accelerating;
+			}
+
+			public int DoResizeStep(int currentVal)
+			{
+				switch (rsStage)
+				{
+				case ResizeStage.Sleeping: return currentVal; // do nothing
+				case ResizeStage.Accelerating:
+					if (rsMaximizing) rsSpeed++;
+					else rsSpeed--;
+					if ((rsMaximizing && currentVal > rsTarget) || (!rsMaximizing && currentVal < rsTarget)) rsStage++;
+					return currentVal + rsSpeed;
+				case ResizeStage.Breaking:
+					rsSpeed /= 2;
+					if (rsSpeed <= 10) rsStage++;
+					return currentVal + rsSpeed;
+				case ResizeStage.Reversing:
+					if (rsMaximizing) rsSpeed--;
+					else rsSpeed++;
+					if ((rsMaximizing && currentVal + rsSpeed < rsTarget) || (!rsMaximizing && currentVal + rsSpeed > rsTarget))
+					{
+						rsStage++;
+						return rsTarget;
+					}
+					return currentVal + rsSpeed;
+				}
+				return currentVal;
+			}
+
+			private enum ResizeStage
+			{
+				Sleeping,
+				Accelerating,
+				Breaking,
+				Reversing
+			}
+		}
+
+		Random r = new Random();
+		private void lblInfo_Click(object sender, EventArgs e)
+		{
+			DoResize(r.Next(100, 800), r.Next(100, 800)); // wobbel debug demo
+		}
 	}
 }

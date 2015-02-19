@@ -4,7 +4,7 @@ using System.Text;
 
 namespace UltraHook
 {
-	public class Connection : MarshalByRefObject
+	public class Connection : MarshalByRefObject // TODO: in own dll
 	{
 		public int X;
 		public int Y;

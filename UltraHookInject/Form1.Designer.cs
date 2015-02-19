@@ -41,6 +41,7 @@
 			this.lblFPS = new System.Windows.Forms.Label();
 			this.numFPSLimit = new System.Windows.Forms.NumericUpDown();
 			this.resizer = new System.Windows.Forms.Timer(this.components);
+			this.button1 = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.numFPSLimit)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -54,11 +55,14 @@
 			// 
 			this.lblInfo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.lblInfo.Font = new System.Drawing.Font("Corbel", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblInfo.Location = new System.Drawing.Point(12, 9);
+			this.lblInfo.Location = new System.Drawing.Point(5, 5);
+			this.lblInfo.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
 			this.lblInfo.Name = "lblInfo";
-			this.lblInfo.Size = new System.Drawing.Size(320, 22);
+			this.lblInfo.Size = new System.Drawing.Size(240, 25);
 			this.lblInfo.TabIndex = 0;
-			this.lblInfo.Text = "====>";
+			this.lblInfo.Text = "<==== INFOBAR ====>";
+			this.lblInfo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.lblInfo.Click += new System.EventHandler(this.lblInfo_Click);
 			// 
 			// cobCHT
 			// 
@@ -70,7 +74,7 @@
             "thin lines",
             "square",
             "custom"});
-			this.cobCHT.Location = new System.Drawing.Point(103, 34);
+			this.cobCHT.Location = new System.Drawing.Point(96, 38);
 			this.cobCHT.Name = "cobCHT";
 			this.cobCHT.Size = new System.Drawing.Size(86, 21);
 			this.cobCHT.TabIndex = 5;
@@ -79,9 +83,10 @@
 			// label2
 			// 
 			this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.label2.Location = new System.Drawing.Point(12, 34);
+			this.label2.Location = new System.Drawing.Point(5, 35);
+			this.label2.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
 			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(86, 23);
+			this.label2.Size = new System.Drawing.Size(85, 25);
 			this.label2.TabIndex = 6;
 			this.label2.Text = "Crosshair style:";
 			this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -91,9 +96,10 @@
 			this.checkUseDot.Appearance = System.Windows.Forms.Appearance.Button;
 			this.checkUseDot.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
 			this.checkUseDot.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.checkUseDot.Location = new System.Drawing.Point(195, 34);
+			this.checkUseDot.Location = new System.Drawing.Point(190, 35);
+			this.checkUseDot.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
 			this.checkUseDot.Name = "checkUseDot";
-			this.checkUseDot.Size = new System.Drawing.Size(53, 23);
+			this.checkUseDot.Size = new System.Drawing.Size(55, 25);
 			this.checkUseDot.TabIndex = 9;
 			this.checkUseDot.Text = "use dot";
 			this.checkUseDot.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -105,9 +111,10 @@
 			this.checkFPSLimit.Appearance = System.Windows.Forms.Appearance.Button;
 			this.checkFPSLimit.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
 			this.checkFPSLimit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.checkFPSLimit.Location = new System.Drawing.Point(254, 63);
+			this.checkFPSLimit.Location = new System.Drawing.Point(249, 65);
+			this.checkFPSLimit.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
 			this.checkFPSLimit.Name = "checkFPSLimit";
-			this.checkFPSLimit.Size = new System.Drawing.Size(78, 22);
+			this.checkFPSLimit.Size = new System.Drawing.Size(80, 25);
 			this.checkFPSLimit.TabIndex = 10;
 			this.checkFPSLimit.Text = "limit FPS";
 			this.checkFPSLimit.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -125,9 +132,10 @@
 			// openImage
 			// 
 			this.openImage.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.openImage.Location = new System.Drawing.Point(254, 34);
+			this.openImage.Location = new System.Drawing.Point(250, 35);
+			this.openImage.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
 			this.openImage.Name = "openImage";
-			this.openImage.Size = new System.Drawing.Size(78, 23);
+			this.openImage.Size = new System.Drawing.Size(80, 25);
 			this.openImage.TabIndex = 12;
 			this.openImage.Text = "Open Image";
 			this.openImage.UseVisualStyleBackColor = true;
@@ -136,9 +144,10 @@
 			// label3
 			// 
 			this.label3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.label3.Location = new System.Drawing.Point(12, 63);
+			this.label3.Location = new System.Drawing.Point(5, 65);
+			this.label3.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(86, 22);
+			this.label3.Size = new System.Drawing.Size(85, 25);
 			this.label3.TabIndex = 13;
 			this.label3.Text = "FPS Reader:";
 			this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -147,15 +156,17 @@
 			// 
 			this.lblFPS.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.lblFPS.Font = new System.Drawing.Font("Corbel", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblFPS.Location = new System.Drawing.Point(104, 63);
+			this.lblFPS.Location = new System.Drawing.Point(96, 65);
+			this.lblFPS.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
 			this.lblFPS.Name = "lblFPS";
-			this.lblFPS.Size = new System.Drawing.Size(85, 22);
+			this.lblFPS.Size = new System.Drawing.Size(85, 25);
 			this.lblFPS.TabIndex = 14;
 			this.lblFPS.Text = "--===--";
+			this.lblFPS.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// numFPSLimit
 			// 
-			this.numFPSLimit.Location = new System.Drawing.Point(195, 63);
+			this.numFPSLimit.Location = new System.Drawing.Point(190, 68);
 			this.numFPSLimit.Maximum = new decimal(new int[] {
             9999,
             0,
@@ -167,7 +178,7 @@
             0,
             0});
 			this.numFPSLimit.Name = "numFPSLimit";
-			this.numFPSLimit.Size = new System.Drawing.Size(53, 20);
+			this.numFPSLimit.Size = new System.Drawing.Size(55, 20);
 			this.numFPSLimit.TabIndex = 16;
 			this.numFPSLimit.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.numFPSLimit.Value = new decimal(new int[] {
@@ -182,11 +193,23 @@
 			this.resizer.Interval = 10;
 			this.resizer.Tick += new System.EventHandler(this.resizer_Tick);
 			// 
+			// button1
+			// 
+			this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.button1.Location = new System.Drawing.Point(250, 5);
+			this.button1.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
+			this.button1.Name = "button1";
+			this.button1.Size = new System.Drawing.Size(80, 25);
+			this.button1.TabIndex = 17;
+			this.button1.Text = "Settings";
+			this.button1.UseVisualStyleBackColor = true;
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(341, 94);
+			this.ClientSize = new System.Drawing.Size(334, 96);
+			this.Controls.Add(this.button1);
 			this.Controls.Add(this.numFPSLimit);
 			this.Controls.Add(this.lblFPS);
 			this.Controls.Add(this.label3);
@@ -198,8 +221,9 @@
 			this.Controls.Add(this.cobCHT);
 			this.Controls.Add(this.lblInfo);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+			this.MaximizeBox = false;
 			this.Name = "Form1";
-			this.Text = "UltraHook [Close this window to disable the hook]";
+			this.Text = "UltraHook";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.numFPSLimit)).EndInit();
 			this.ResumeLayout(false);
@@ -220,6 +244,7 @@
 		private System.Windows.Forms.Label lblFPS;
 		private System.Windows.Forms.NumericUpDown numFPSLimit;
 		private System.Windows.Forms.Timer resizer;
+		private System.Windows.Forms.Button button1;
     }
 }
 
