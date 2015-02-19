@@ -2,7 +2,7 @@
 * text=auto
 
 # Custom for Visual Studio
-*.Designer.cs binary
+*.Designer.cs -diff
 *.cs     diff=csharp
 *.sln    merge=union
 *.csproj merge=union
