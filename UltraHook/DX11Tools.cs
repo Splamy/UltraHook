@@ -9,7 +9,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace UltraHook
 {
-	internal class DX11GUI
+	public class DX11GUI
 	{
 		GraphicsDevice graphics;
 		Texture image;
@@ -77,7 +77,7 @@ namespace UltraHook
 		}
 	}
 
-	internal enum DXGISwapChainVTbl : short
+	public enum DXGISwapChainVTbl : short
 	{
 		// IUnknown
 		QueryInterface = 0,

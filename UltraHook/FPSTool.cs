@@ -5,7 +5,7 @@ using System.Text;
 
 namespace UltraHook
 {
-	internal class FPSTool
+	public class FPSTool
 	{
 		int Count = 0;
 		int LastFPS = 0;

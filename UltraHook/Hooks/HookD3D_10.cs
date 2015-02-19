@@ -10,7 +10,7 @@ using SharpDX.Direct3D10;
 
 namespace UltraHook
 {
-	internal class HookD3D_10 : D3DHook
+	public class HookD3D_10 : D3DHook
     {
 		public override string Name { get { return "Direct3D 10"; } protected set { } }
 

@@ -11,7 +11,7 @@ using SharpDX.DXGI;
 
 namespace UltraHook
 {
-	internal class HookD3D_11 : D3DHook
+	public class HookD3D_11 : D3DHook
 	{
 		public override string Name { get { return "Direct3D 11"; } protected set { } }
 

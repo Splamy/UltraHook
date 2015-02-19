@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 namespace UltraHook
 {
-	internal class DXTools
+	public class DXTools
 	{
 		[DllImport("kernel32.dll")]
 		public static extern IntPtr GetModuleHandle(string lpModuleName);

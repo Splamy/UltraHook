@@ -65,6 +65,19 @@ namespace UltraHookInject
 				{
 					Core.Log("Could not read config.ini");
 				}
+
+				try
+				{
+					conServer = RemoteHooking.IpcCreateServer<Connection>(
+						ref conName,
+						WellKnownObjectMode.SingleCall,
+						conMain,
+						new WellKnownSidType[] { WellKnownSidType.LocalSid });
+				}
+				catch
+				{
+					MessageBox.Show("IPC Startup failed");
+				}
 			}
 		}
 
@@ -104,32 +117,25 @@ namespace UltraHookInject
 				return;
 			}
 
-			ProcessModuleCollection pmc = res[0].Modules;
-
-			conServer = RemoteHooking.IpcCreateServer<Connection>(
-				ref conName,
-				WellKnownObjectMode.SingleCall,
-				conMain,
-				new WellKnownSidType[] { WellKnownSidType.LocalSid });
+			//ProcessModuleCollection pmc = res[0].Modules;
 
 			try
 			{
 				getOnce = false;
-
 				RemoteHooking.Inject(res[0].Id,
 					InjectionOptions.Default,
-				   typeof(Connection).Assembly.Location,
-				   typeof(Connection).Assembly.Location,
-				   conName);
+					typeof(Core).Assembly.Location,
+					typeof(Core).Assembly.Location,
+					conName);
 			}
 			catch (Exception ex)
 			{
-				lblInfo.Text = "Not enough permissions";
+				lblInfo.Text = "Err: " + ex.Message;
 				Core.Log("Injection Error: " + ex.Message);
 				return;
 			}
 
-			lblInfo.Text = "UltraHook - Injection OK";
+			lblInfo.Text = "Injection OK (waiting for response)";
 			timer1.Stop();
 			resizer.Start();
 		}
@@ -170,6 +176,8 @@ namespace UltraHookInject
 			case DXVersion.DX10_1:
 				break;
 			case DXVersion.DX11:
+				Stream str = conMain.customCHBD as Stream;
+				if (str != null) str.Close();
 				conMain.customCHBD = File.Open(ofd.FileName, FileMode.Open, FileAccess.Read);
 				break;
 			case DXVersion.DX11_1:
@@ -405,7 +413,7 @@ namespace UltraHookInject
 			if (getOnce) return; // from here only one time initializations per injection
 
 			DXVersion locDxVersion = conMain.dxVersion;
-			lblInfo.Text = "UltraHook - Successfully hooked " + locDxVersion.ToString();
+			lblInfo.Text = "Successfully hooked " + locDxVersion.ToString();
 
 			// todo: remove this when drawdot is implemented for other dx versions
 			checkUseDot.Enabled = conMain.dxVersion == DXVersion.DX09;

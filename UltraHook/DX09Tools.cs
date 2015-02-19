@@ -7,7 +7,7 @@ using SharpDX;
 
 namespace UltraHook
 {
-	internal class ColorPalette
+	public class ColorPalette
 	{
 		public static readonly ColorBGRA ColorWhite = new ColorBGRA(255, 255, 255, 255);
 		public static readonly ColorBGRA ColorBlack = new ColorBGRA(0, 0, 0, 255);
@@ -27,7 +27,7 @@ namespace UltraHook
 		public static readonly ColorBGRA ColorLightBlue = new ColorBGRA(0, 255, 127, 255);
 	}
 
-	internal class CHBuild
+	public class CHBuild
 	{
 		public Rectangle[][] rects;
 		public ColorBGRA[] colors;

@@ -10,7 +10,7 @@ using SharpDX.Direct3D9;
 
 namespace UltraHook
 {
-	internal class HookD3D_09 : D3DHook
+	public class HookD3D_09 : D3DHook
 	{
 		public override string Name { get { return "Direct3D 9"; } protected set { } }
 
@@ -95,13 +95,15 @@ namespace UltraHook
 		{
 			Device device = (Device)devicePtr;
 
-			if (!closed)
+			if (!closed && true)
 			{
 				//don't initialize font, it MAY crash
 				//if (dxFont == null)
 				//	dxFont = new Font(device, fdesc);
 
-				int chTypei = (int)connection.chType;
+				int chTypei = 0;
+				chTypei = (int)connection.chType;
+
 				if (prebakedCH[chTypei] == null || connection.refreshData)
 				{
 					switch (connection.chType)
@@ -129,18 +131,18 @@ namespace UltraHook
 					//dxFont.DrawText(null, "bluub", con.X / 2 - 3, con.Y / 2 - 19, SharpDX.Color.White);
 				}
 
-				connection.getFPS = fpsTool.getFPS();
-				fpsTool.limitFPS();
 
 				//http://www.unknowncheats.me/forum/d3d-tutorials-and-source/58821-simple-2d-circle-using-drawprimitiveup.html
 				//device.DrawUserPrimitives(PrimitiveType.LineStrip)
 			}
 
+
+			connection.getFPS = fpsTool.getFPS();
+			fpsTool.limitFPS();
+
 			device.EndScene();
 			return SharpDX.Result.Ok.Code;
 		}
-
-
 
 		[UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
 		delegate int Direct3D9Device_EndSceneDelegate(IntPtr device);

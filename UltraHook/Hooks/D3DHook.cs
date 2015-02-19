@@ -4,7 +4,7 @@ using System.Text;
 
 namespace UltraHook
 {
-	internal abstract class D3DHook
+	public abstract class D3DHook
 	{
 		public abstract string Name { get; protected set; }
 
