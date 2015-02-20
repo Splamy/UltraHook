@@ -42,6 +42,8 @@
 			this.numFPSLimit = new System.Windows.Forms.NumericUpDown();
 			this.resizer = new System.Windows.Forms.Timer(this.components);
 			this.button1 = new System.Windows.Forms.Button();
+			this.cbxProcessList = new System.Windows.Forms.ComboBox();
+			this.checkFilerList = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.numFPSLimit)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -111,7 +113,7 @@
 			this.checkFPSLimit.Appearance = System.Windows.Forms.Appearance.Button;
 			this.checkFPSLimit.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
 			this.checkFPSLimit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.checkFPSLimit.Location = new System.Drawing.Point(249, 65);
+			this.checkFPSLimit.Location = new System.Drawing.Point(250, 65);
 			this.checkFPSLimit.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
 			this.checkFPSLimit.Name = "checkFPSLimit";
 			this.checkFPSLimit.Size = new System.Drawing.Size(80, 25);
@@ -204,11 +206,38 @@
 			this.button1.Text = "Settings";
 			this.button1.UseVisualStyleBackColor = true;
 			// 
+			// cbxProcessList
+			// 
+			this.cbxProcessList.FormattingEnabled = true;
+			this.cbxProcessList.Location = new System.Drawing.Point(5, 106);
+			this.cbxProcessList.Name = "cbxProcessList";
+			this.cbxProcessList.Size = new System.Drawing.Size(240, 21);
+			this.cbxProcessList.TabIndex = 18;
+			this.cbxProcessList.DropDown += new System.EventHandler(this.comboBox1_DropDown);
+			// 
+			// checkFilerList
+			// 
+			this.checkFilerList.Appearance = System.Windows.Forms.Appearance.Button;
+			this.checkFilerList.Checked = true;
+			this.checkFilerList.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.checkFilerList.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+			this.checkFilerList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.checkFilerList.Location = new System.Drawing.Point(250, 103);
+			this.checkFilerList.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
+			this.checkFilerList.Name = "checkFilerList";
+			this.checkFilerList.Size = new System.Drawing.Size(80, 25);
+			this.checkFilerList.TabIndex = 19;
+			this.checkFilerList.Text = "Filter list";
+			this.checkFilerList.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.checkFilerList.UseVisualStyleBackColor = true;
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(334, 96);
+			this.ClientSize = new System.Drawing.Size(337, 205);
+			this.Controls.Add(this.checkFilerList);
+			this.Controls.Add(this.cbxProcessList);
 			this.Controls.Add(this.button1);
 			this.Controls.Add(this.numFPSLimit);
 			this.Controls.Add(this.lblFPS);
@@ -245,6 +274,8 @@
 		private System.Windows.Forms.NumericUpDown numFPSLimit;
 		private System.Windows.Forms.Timer resizer;
 		private System.Windows.Forms.Button button1;
+		private System.Windows.Forms.ComboBox cbxProcessList;
+		private System.Windows.Forms.CheckBox checkFilerList;
 	}
 }
 

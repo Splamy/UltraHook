@@ -27,14 +27,13 @@ namespace UltraHookInject
 		Rectangle[][] buildrect;
 		Color[] buildcol;
 
-		/*ResizeStage rsStage = ResizeStage.Sleeping;
-		int rsSpeed = 0;
-		int rsTarget = 0;
-		int rsOverlap = 0;
-		bool rsMaximizing = true;*/
 		ResizeTool rtWidth = new ResizeTool();
 		ResizeTool rtHeight = new ResizeTool();
 		Size rsMinSize = new Size(350, 135);
+
+		Dictionary<string, ProcInfo> processDict = new Dictionary<string, ProcInfo>();
+		Process ptarget = null;
+		bool autoReInject;
 
 		bool getOnce = false;
 
@@ -91,7 +90,6 @@ namespace UltraHookInject
 				conMain.closing = true;
 				if (conServer != null)
 				{
-					conServer.StopListening(null);
 					lblInfo.Text = "Waiting for target to close (200ms)";
 					while (conMain.closing && cnt < 200)
 					{
@@ -99,6 +97,7 @@ namespace UltraHookInject
 						cnt++;
 						Application.DoEvents();
 					}
+					conServer.StopListening(null);
 				}
 			}
 			catch { }
@@ -109,21 +108,34 @@ namespace UltraHookInject
 		public void timer1_Tick(object sender, EventArgs e)
 		{
 			// todo logical injecting
+			object target = cbxProcessList.SelectedItem;
+			string starget = target as string;
+			ProcInfo pitarget = target as ProcInfo;
+			ptarget = null;
 
-			Process[] res = Process.GetProcessesByName(targetproc);
-			if (res.Length == 0)
+			if (pitarget != null || starget != null)
+			{
+				if (pitarget != null)
+					targetproc = pitarget.procname;
+				else if (starget != null)
+					targetproc = starget;
+
+				Process[] res = Process.GetProcessesByName(targetproc);
+				if (res.Length > 0)
+					ptarget = res[0];
+			}
+
+			if (ptarget == null)
 			{
 				lblInfo.Text = "No process found";
 				return;
 			}
 
-			//ProcessModuleCollection pmc = res[0].Modules;
-
 			try
 			{
 				getOnce = false;
-				RemoteHooking.Inject(res[0].Id,
-					InjectionOptions.Default,
+				RemoteHooking.Inject(ptarget.Id,
+					InjectionOptions.Default, // DoNotRequireStrongName if everything else fails
 					typeof(Core).Assembly.Location,
 					typeof(Core).Assembly.Location,
 					conName);
@@ -136,8 +148,64 @@ namespace UltraHookInject
 			}
 
 			lblInfo.Text = "Injection OK (waiting for response)";
-			timer1.Stop();
+			if (!autoReInject)
+				timer1.Stop();
 			resizer.Start();
+		}
+
+		public void RefreshDDList()
+		{
+			cbxProcessList.Items.Clear();
+
+			foreach (Process p in Process.GetProcesses())
+			{
+				if (processDict.ContainsKey(p.ProcessName))
+				{
+					ProcInfo pidic = processDict[p.ProcessName];
+					if (pidic != null)
+					{
+						if (checkFilerList.Checked && pidic.usedDX == DXVersion.unknown) continue;
+						cbxProcessList.Items.Add(pidic);
+					}
+					continue;
+				}
+
+				ProcInfo pi = new ProcInfo();
+				pi.usedDX = DXVersion.unknown;
+
+				bool founddx = false;
+				try
+				{
+
+					foreach (ProcessModule pm in p.Modules)
+					{
+						if (pm.ModuleName == "d3d9.dll")
+						{
+							pi.usedDX = DXVersion.DX09;
+							founddx = true;
+						}
+						else if (pm.ModuleName == "d3d10.dll")
+						{
+							pi.usedDX = DXVersion.DX10;
+							founddx = true;
+						}
+						else if (pm.ModuleName == "d3d11.dll")
+						{
+							pi.usedDX = DXVersion.DX11;
+							founddx = true;
+						}
+					}
+				}
+				catch (Exception) { processDict.Add(p.ProcessName, null); continue; }
+
+				if (checkFilerList.Checked && !founddx) continue;
+
+				pi.procname = p.ProcessName;
+
+				processDict.Add(p.ProcessName, pi);
+
+				cbxProcessList.Items.Add(pi);
+			}
 		}
 
 		// Interface interaction //////////////////////////////////////////////
@@ -196,6 +264,13 @@ namespace UltraHookInject
 		{
 			if (checkFPSLimit.Checked) conMain.limitFPS = (int)(1000 / numFPSLimit.Value);
 			else conMain.limitFPS = -1;
+		}
+
+		// settings subsection
+
+		private void comboBox1_DropDown(object sender, EventArgs e)
+		{
+			RefreshDDList();
 		}
 
 		// Settings Helptools /////////////////////////////////////////////////
@@ -413,7 +488,7 @@ namespace UltraHookInject
 			if (getOnce) return; // from here only one time initializations per injection
 
 			int locDxVersion = conMain.dxVersion;
-			lblInfo.Text = "Successfully hooked " + locDxVersion.ToString();
+			lblInfo.Text = "Successfully hooked " + Global.DXNames[locDxVersion];
 
 			// todo: remove this when drawdot is implemented for other dx versions
 			checkUseDot.Enabled = conMain.dxVersion == DXVersion.DX09;
@@ -472,7 +547,7 @@ namespace UltraHookInject
 					else rsSpeed++;
 					if ((rsMaximizing && currentVal + rsSpeed < rsTarget) || (!rsMaximizing && currentVal + rsSpeed > rsTarget))
 					{
-						rsStage++;
+						rsStage = ResizeStage.Sleeping;
 						return rsTarget;
 					}
 					return currentVal + rsSpeed;
@@ -493,6 +568,42 @@ namespace UltraHookInject
 		private void lblInfo_Click(object sender, EventArgs e)
 		{
 			DoResize(r.Next(100, 800), r.Next(100, 800)); // wobbel debug demo
+		}
+	}
+
+	internal class ProcInfo
+	{
+		public string procname;
+		public int usedDX;
+		public override string ToString()
+		{
+			if (usedDX == DXVersion.unknown)
+				return procname;
+			else
+				return procname + " [" + Global.DXNames[usedDX] + "]";
+		}
+	}
+
+	public class Global
+	{
+		private static string[] _DXNames;
+		public static string[] DXNames
+		{
+			get
+			{
+				if (_DXNames == null)
+				{
+					_DXNames = new string[6];
+					_DXNames[0] = "unknown";
+					_DXNames[1] = "DX09";
+					_DXNames[2] = "DX10";
+					_DXNames[3] = "DX10.1";
+					_DXNames[4] = "DX11";
+					_DXNames[5] = "DX11.1";
+				}
+				return _DXNames;
+			}
+			protected set { }
 		}
 	}
 }

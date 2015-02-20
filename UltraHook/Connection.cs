@@ -15,7 +15,7 @@ namespace UltraHook
 		public int getFPS;
 		public int limitFPS;
 		public int dxVersion;
-		public object customCHBD; // 
+		public object customCHBD;
 		/*
 		 * custom CrossHair Build Data Explanation, use:
 		 * - int[] for DX9 with the CHBuild Constructor.
