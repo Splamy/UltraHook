@@ -53,8 +53,8 @@ namespace UltraHookInject
 				{
 					conMain.X = Convert.ToInt32(config["X"]);
 					conMain.Y = Convert.ToInt32(config["Y"]);
-					conMain.chType = (CHType)Convert.ToInt32(config["crosshair"]);
-					cobCHT.SelectedIndex = (int)conMain.chType;
+					conMain.chType = Convert.ToInt32(config["crosshair"]);
+					cobCHT.SelectedIndex = conMain.chType;
 					conMain.drawDot = Convert.ToBoolean(config["drawDot"]);
 					targetproc = config["game"];
 					// custom ch path
@@ -144,7 +144,7 @@ namespace UltraHookInject
 
 		public void cobCHT_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			conMain.chType = (CHType)cobCHT.SelectedIndex;
+			conMain.chType = cobCHT.SelectedIndex;
 			if (conMain.chType == CHType.custom)
 			{
 				openImage.Enabled = true;
@@ -412,7 +412,7 @@ namespace UltraHookInject
 
 			if (getOnce) return; // from here only one time initializations per injection
 
-			DXVersion locDxVersion = conMain.dxVersion;
+			int locDxVersion = conMain.dxVersion;
 			lblInfo.Text = "Successfully hooked " + locDxVersion.ToString();
 
 			// todo: remove this when drawdot is implemented for other dx versions

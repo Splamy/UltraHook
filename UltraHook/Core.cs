@@ -56,7 +56,7 @@ namespace UltraHook
 
 				try
 				{
-					DXVersion dxv = D3DHook.connection.dxVersion;
+					int dxv = D3DHook.connection.dxVersion;
 					Core.Log("Connection check: " + dxv.ToString());
 
 					loadedControl.Hook();

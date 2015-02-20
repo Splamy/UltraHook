@@ -8,13 +8,13 @@ namespace UltraHook
 	{
 		public int X;
 		public int Y;
-		public CHType chType;
+		public int chType;
 		public bool drawDot;
 		public bool closing;
 		public bool refreshData;
 		public int getFPS;
 		public int limitFPS;
-		public DXVersion dxVersion;
+		public int dxVersion;
 		public object customCHBD; // 
 		/*
 		 * custom CrossHair Build Data Explanation, use:
@@ -34,24 +34,24 @@ namespace UltraHook
 		}
 	}
 
-	public enum CHType : int
+	public class CHType // yes we need this shit, no enums allowed !!!
 	{
-		none,
-		lines,
-		thinlines,
-		square,
-		custom,
-		DOT,
-		END
+		public const int none = 0;
+		public const int lines = 1;
+		public const int thinlines = 2;
+		public const int square = 3;
+		public const int custom = 4;
+		public const int DOT = 5;
+		public const int END = 6;
 	}
 
-	public enum DXVersion : byte
+	public class DXVersion // same here
 	{
-		unknown,
-		DX09,
-		DX10,
-		DX10_1,
-		DX11,
-		DX11_1
+		public const int unknown = 0;
+		public const int DX09 = 1;
+		public const int DX10 = 2;
+		public const int DX10_1 = 3;
+		public const int DX11 = 4;
+		public const int DX11_1 = 5;
 	}
 }
