@@ -33,8 +33,7 @@ namespace UltraHookInject
 
 		Dictionary<string, ProcInfo> processDict = new Dictionary<string, ProcInfo>();
 		Process ptarget = null;
-		bool autoReInject;
-
+		bool isInjected = false;
 		bool getOnce = false;
 
 		// init/deinit ////////////////////////////////////////////////////////
@@ -52,13 +51,12 @@ namespace UltraHookInject
 				{
 					conMain.X = Convert.ToInt32(config["X"]);
 					conMain.Y = Convert.ToInt32(config["Y"]);
-					conMain.chType = Convert.ToInt32(config["crosshair"]);
-					cobCHT.SelectedIndex = conMain.chType;
-					conMain.drawDot = Convert.ToBoolean(config["drawDot"]);
+					conMain.chType = cobCHT.SelectedIndex = Convert.ToInt32(config["crosshair"]);
+					conMain.drawDot = checkUseDot.Checked = Convert.ToBoolean(config["drawDot"]);
 					targetproc = config["game"];
 					// custom ch path
-					// auto inject
-					// auto reinject
+					checkAutoInject.Checked = Convert.ToBoolean(config["autoinject"]);
+					checkAutoReInject.Checked = Convert.ToBoolean(config["autoreinject"]);
 				}
 				catch
 				{
@@ -82,6 +80,14 @@ namespace UltraHookInject
 
 		public void Form1_FormClosing(object sender, FormClosingEventArgs e)
 		{
+			//config["X"] = "";
+			//config["Y"] = "";
+			config["crosshair"] = cobCHT.SelectedIndex.ToString();
+			config["drawDot"] = conMain.drawDot.ToString();
+			config["game"] = targetproc;
+			config["autoinject"] = checkAutoInject.Checked.ToString();
+			config["autoreinject"] = checkAutoReInject.Checked.ToString();
+
 			WriteFile(config, "config.ini");
 
 			try
@@ -107,23 +113,23 @@ namespace UltraHookInject
 
 		public void timer1_Tick(object sender, EventArgs e)
 		{
-			// todo logical injecting
-			object target = cbxProcessList.SelectedItem;
-			string starget = target as string;
-			ProcInfo pitarget = target as ProcInfo;
+			if (isInjected && ptarget != null && !ptarget.HasExited)
+				return;
+			else
+				isInjected = false;
+
+			ProcInfo pitarget = cbxProcessList.SelectedItem as ProcInfo;
+			string starget = cbxProcessList.Text;
+
+			if (pitarget != null && !cbxProcessList.DroppedDown)
+				targetproc = pitarget.procname;
+			else if (pitarget == null && starget != null)
+				targetproc = starget;
+
 			ptarget = null;
-
-			if (pitarget != null || starget != null)
-			{
-				if (pitarget != null)
-					targetproc = pitarget.procname;
-				else if (starget != null)
-					targetproc = starget;
-
-				Process[] res = Process.GetProcessesByName(targetproc);
-				if (res.Length > 0)
-					ptarget = res[0];
-			}
+			Process[] res = Process.GetProcessesByName(targetproc);
+			if (res.Length > 0)
+				ptarget = res[0];
 
 			if (ptarget == null)
 			{
@@ -133,12 +139,23 @@ namespace UltraHookInject
 
 			try
 			{
-				getOnce = false;
+				ProcessModuleCollection pmc = ptarget.Modules;
+				foreach (ProcessModule pm in pmc)
+				{
+					if (pm.ModuleName.CompareTo("EasyHook32.dll") == 0 || pm.ModuleName.CompareTo("EasyHook64.dll") == 0)
+					{
+						isInjected = true;
+						return;
+					}
+				}
+
 				RemoteHooking.Inject(ptarget.Id,
 					InjectionOptions.Default, // DoNotRequireStrongName if everything else fails
 					typeof(Core).Assembly.Location,
 					typeof(Core).Assembly.Location,
 					conName);
+				getOnce = false;
+				isInjected = true;
 			}
 			catch (Exception ex)
 			{
@@ -148,7 +165,7 @@ namespace UltraHookInject
 			}
 
 			lblInfo.Text = "Injection OK (waiting for response)";
-			if (!autoReInject)
+			if (!checkAutoReInject.Checked)
 				timer1.Stop();
 			resizer.Start();
 		}
@@ -271,6 +288,7 @@ namespace UltraHookInject
 		private void comboBox1_DropDown(object sender, EventArgs e)
 		{
 			RefreshDDList();
+			isInjected = false;
 		}
 
 		// Settings Helptools /////////////////////////////////////////////////
@@ -568,6 +586,28 @@ namespace UltraHookInject
 		private void lblInfo_Click(object sender, EventArgs e)
 		{
 			DoResize(r.Next(100, 800), r.Next(100, 800)); // wobbel debug demo
+		}
+
+		private void cbxProcessList_TextChanged(object sender, EventArgs e)
+		{
+			this.Text = cbxProcessList.Text;
+		}
+
+		private void checkAutoReInject_CheckedChanged(object sender, EventArgs e)
+		{
+
+		}
+
+		private void checkSettings_CheckedChanged(object sender, EventArgs e)
+		{
+			if (checkSettings.Checked)
+			{
+				DoResize(355, 205);
+			}
+			else
+			{
+				DoResize(355, 70);
+			}
 		}
 	}
 

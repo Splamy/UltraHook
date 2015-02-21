@@ -41,9 +41,12 @@
 			this.lblFPS = new System.Windows.Forms.Label();
 			this.numFPSLimit = new System.Windows.Forms.NumericUpDown();
 			this.resizer = new System.Windows.Forms.Timer(this.components);
-			this.button1 = new System.Windows.Forms.Button();
 			this.cbxProcessList = new System.Windows.Forms.ComboBox();
 			this.checkFilerList = new System.Windows.Forms.CheckBox();
+			this.checkAutoInject = new System.Windows.Forms.CheckBox();
+			this.checkAutoReInject = new System.Windows.Forms.CheckBox();
+			this.btnStartSearch = new System.Windows.Forms.Button();
+			this.checkSettings = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.numFPSLimit)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -78,7 +81,7 @@
             "custom"});
 			this.cobCHT.Location = new System.Drawing.Point(96, 38);
 			this.cobCHT.Name = "cobCHT";
-			this.cobCHT.Size = new System.Drawing.Size(86, 21);
+			this.cobCHT.Size = new System.Drawing.Size(85, 21);
 			this.cobCHT.TabIndex = 5;
 			this.cobCHT.SelectedIndexChanged += new System.EventHandler(this.cobCHT_SelectedIndexChanged);
 			// 
@@ -195,17 +198,6 @@
 			this.resizer.Interval = 10;
 			this.resizer.Tick += new System.EventHandler(this.resizer_Tick);
 			// 
-			// button1
-			// 
-			this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.button1.Location = new System.Drawing.Point(250, 5);
-			this.button1.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(80, 25);
-			this.button1.TabIndex = 17;
-			this.button1.Text = "Settings";
-			this.button1.UseVisualStyleBackColor = true;
-			// 
 			// cbxProcessList
 			// 
 			this.cbxProcessList.FormattingEnabled = true;
@@ -214,6 +206,7 @@
 			this.cbxProcessList.Size = new System.Drawing.Size(240, 21);
 			this.cbxProcessList.TabIndex = 18;
 			this.cbxProcessList.DropDown += new System.EventHandler(this.comboBox1_DropDown);
+			this.cbxProcessList.TextChanged += new System.EventHandler(this.cbxProcessList_TextChanged);
 			// 
 			// checkFilerList
 			// 
@@ -231,14 +224,72 @@
 			this.checkFilerList.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			this.checkFilerList.UseVisualStyleBackColor = true;
 			// 
+			// checkAutoInject
+			// 
+			this.checkAutoInject.Appearance = System.Windows.Forms.Appearance.Button;
+			this.checkAutoInject.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+			this.checkAutoInject.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.checkAutoInject.Location = new System.Drawing.Point(5, 135);
+			this.checkAutoInject.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
+			this.checkAutoInject.Name = "checkAutoInject";
+			this.checkAutoInject.Size = new System.Drawing.Size(85, 25);
+			this.checkAutoInject.TabIndex = 20;
+			this.checkAutoInject.Text = "Auto Inject";
+			this.checkAutoInject.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.checkAutoInject.UseVisualStyleBackColor = true;
+			// 
+			// checkAutoReInject
+			// 
+			this.checkAutoReInject.Appearance = System.Windows.Forms.Appearance.Button;
+			this.checkAutoReInject.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+			this.checkAutoReInject.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.checkAutoReInject.Location = new System.Drawing.Point(95, 135);
+			this.checkAutoReInject.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
+			this.checkAutoReInject.Name = "checkAutoReInject";
+			this.checkAutoReInject.Size = new System.Drawing.Size(85, 25);
+			this.checkAutoReInject.TabIndex = 21;
+			this.checkAutoReInject.Text = "Auto Re-Inject";
+			this.checkAutoReInject.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.checkAutoReInject.UseVisualStyleBackColor = true;
+			this.checkAutoReInject.CheckedChanged += new System.EventHandler(this.checkAutoReInject_CheckedChanged);
+			// 
+			// btnStartSearch
+			// 
+			this.btnStartSearch.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.btnStartSearch.Location = new System.Drawing.Point(185, 135);
+			this.btnStartSearch.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
+			this.btnStartSearch.Name = "btnStartSearch";
+			this.btnStartSearch.Size = new System.Drawing.Size(145, 25);
+			this.btnStartSearch.TabIndex = 22;
+			this.btnStartSearch.Text = "Start one-time Search";
+			this.btnStartSearch.UseVisualStyleBackColor = true;
+			// 
+			// checkSettings
+			// 
+			this.checkSettings.Appearance = System.Windows.Forms.Appearance.Button;
+			this.checkSettings.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+			this.checkSettings.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.checkSettings.Location = new System.Drawing.Point(250, 5);
+			this.checkSettings.Margin = new System.Windows.Forms.Padding(5, 5, 0, 0);
+			this.checkSettings.Name = "checkSettings";
+			this.checkSettings.Size = new System.Drawing.Size(80, 25);
+			this.checkSettings.TabIndex = 23;
+			this.checkSettings.Text = "Settings";
+			this.checkSettings.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.checkSettings.UseVisualStyleBackColor = true;
+			this.checkSettings.CheckedChanged += new System.EventHandler(this.checkSettings_CheckedChanged);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(337, 205);
+			this.ClientSize = new System.Drawing.Size(339, 31);
+			this.Controls.Add(this.checkSettings);
+			this.Controls.Add(this.btnStartSearch);
+			this.Controls.Add(this.checkAutoReInject);
+			this.Controls.Add(this.checkAutoInject);
 			this.Controls.Add(this.checkFilerList);
 			this.Controls.Add(this.cbxProcessList);
-			this.Controls.Add(this.button1);
 			this.Controls.Add(this.numFPSLimit);
 			this.Controls.Add(this.lblFPS);
 			this.Controls.Add(this.label3);
@@ -273,9 +324,12 @@
 		private System.Windows.Forms.Label lblFPS;
 		private System.Windows.Forms.NumericUpDown numFPSLimit;
 		private System.Windows.Forms.Timer resizer;
-		private System.Windows.Forms.Button button1;
 		private System.Windows.Forms.ComboBox cbxProcessList;
 		private System.Windows.Forms.CheckBox checkFilerList;
+		private System.Windows.Forms.CheckBox checkAutoInject;
+		private System.Windows.Forms.CheckBox checkAutoReInject;
+		private System.Windows.Forms.Button btnStartSearch;
+		private System.Windows.Forms.CheckBox checkSettings;
 	}
 }
 
