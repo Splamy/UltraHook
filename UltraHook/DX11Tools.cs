@@ -15,6 +15,7 @@ namespace UltraHook
 		Texture image;
 		SpriteBatch sprb;
 		SharpDX.Toolkit.Graphics.BlendState blState = null;
+		RectangleF drawRect;
 		bool initok = false;
 		bool initcrash = false;
 
@@ -51,7 +52,9 @@ namespace UltraHook
 				{
 					System.IO.Stream imgInput = D3DHook.connection.customCHBD as System.IO.Stream;
 					if (imgInput == null) return false;
+					imgInput.Position = 0;
 					image = Texture.Load(graphics, imgInput); // "crosshair.png"
+					drawRect = new RectangleF(D3DHook.connection.X / 2 - image.Width / 2, D3DHook.connection.Y / 2 - image.Height / 2, image.Width, image.Height);
 
 					initok = true;
 					D3DHook.connection.refreshData = false;
@@ -71,9 +74,19 @@ namespace UltraHook
 			if (initcrash) return;
 			if (!loadData()) return;
 
-			sprb.Begin(SpriteSortMode.Deferred, blState);
-			sprb.Draw(image, new RectangleF(0, 0, 100, 100), Color.White);
-			sprb.End();
+			if (D3DHook.connection.chType != CHType.none)
+			{
+				sprb.Begin(SpriteSortMode.Deferred, blState);
+				switch (D3DHook.connection.chType)
+				{
+				case CHType.custom:
+					sprb.Draw(image, drawRect, Color.White);
+					break;
+				default:
+					break;
+				}
+				sprb.End();
+			}
 		}
 	}
 

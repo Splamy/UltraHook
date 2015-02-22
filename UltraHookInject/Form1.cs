@@ -22,6 +22,7 @@ namespace UltraHookInject
 		Connection conMain;
 		string conName = "uh_data";
 		string targetproc = "KillingFloor";
+		string customImage = "";
 
 		int[] cchd = null; // custom crosshair data
 		Rectangle[][] buildrect;
@@ -29,7 +30,8 @@ namespace UltraHookInject
 
 		ResizeTool rtWidth = new ResizeTool();
 		ResizeTool rtHeight = new ResizeTool();
-		Size rsMinSize = new Size(350, 135);
+		Size rsMaxSize = new Size(335, 215);
+		Size rsMinSize = new Size(335, 55);
 
 		Dictionary<string, ProcInfo> processDict = new Dictionary<string, ProcInfo>();
 		Process ptarget = null;
@@ -42,6 +44,11 @@ namespace UltraHookInject
 		{
 			InitializeComponent();
 
+			mTitlebar1.Icon = Icon.ToBitmap();
+			mTitlebar1.DragElement = this;
+			mTitlebar1.ClickClose += AppExit;
+			mTitlebar1.ClickMinimize += Minimize;
+
 			// todo load/save all stuff
 			conMain = new Connection();
 			if (File.Exists("config.ini"))
@@ -49,42 +56,47 @@ namespace UltraHookInject
 				config = ReadFile("config.ini");
 				try
 				{
-					conMain.X = Convert.ToInt32(config["X"]);
-					conMain.Y = Convert.ToInt32(config["Y"]);
-					conMain.chType = cobCHT.SelectedIndex = Convert.ToInt32(config["crosshair"]);
+					numResX.Value = conMain.X = Convert.ToInt32(config["X"]);
+					numResY.Value = conMain.Y = Convert.ToInt32(config["Y"]);
+					conMain.chType = cobCHT.SelectedIndex = Math.Max(0, Math.Min(CHType.custom, Convert.ToInt32(config["crosshair"])));
 					conMain.drawDot = checkUseDot.Checked = Convert.ToBoolean(config["drawDot"]);
-					targetproc = config["game"];
-					// custom ch path
+					cbxProcessList.Text = targetproc = config["game"];
+					customImage = config["customimage"];
 					checkAutoInject.Checked = Convert.ToBoolean(config["autoinject"]);
 					checkAutoReInject.Checked = Convert.ToBoolean(config["autoreinject"]);
-				}
-				catch
-				{
-					Core.Log("Could not read config.ini");
-				}
 
-				try
-				{
-					conServer = RemoteHooking.IpcCreateServer<Connection>(
-						ref conName,
-						WellKnownObjectMode.SingleCall,
-						conMain,
-						new WellKnownSidType[] { WellKnownSidType.LocalSid });
+					timer1.Enabled = checkAutoInject.Checked;
 				}
-				catch
+				catch (Exception ex)
 				{
-					MessageBox.Show("IPC Startup failed");
+					Core.Log("Could not read config.ini -> " + ex.Message);
 				}
 			}
+
+			try
+			{
+				conServer = RemoteHooking.IpcCreateServer<Connection>(
+					ref conName,
+					WellKnownObjectMode.SingleCall,
+					conMain,
+					new WellKnownSidType[] { WellKnownSidType.LocalSid });
+			}
+			catch
+			{
+				MessageBox.Show("IPC Startup failed");
+			}
+
+			this.Size = rsMinSize;
 		}
 
 		public void Form1_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			//config["X"] = "";
-			//config["Y"] = "";
+			config["X"] = numResX.Value.ToString();
+			config["Y"] = numResY.Value.ToString();
 			config["crosshair"] = cobCHT.SelectedIndex.ToString();
-			config["drawDot"] = conMain.drawDot.ToString();
+			config["drawDot"] = checkUseDot.Checked.ToString();
 			config["game"] = targetproc;
+			config["customimage"] = customImage;
 			config["autoinject"] = checkAutoInject.Checked.ToString();
 			config["autoreinject"] = checkAutoReInject.Checked.ToString();
 
@@ -229,13 +241,33 @@ namespace UltraHookInject
 
 		public void cobCHT_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			conMain.chType = cobCHT.SelectedIndex;
-			if (conMain.chType == CHType.custom)
+			if (cobCHT.SelectedIndex > CHType.custom)
 			{
-				openImage.Enabled = true;
-				conMain.customCHBD = cchd;
+				conMain.chType = CHType.custom;
+				customImage = cobCHT.Text;
+				TryLoadImage(customImage);
 			}
-			else openImage.Enabled = false;
+			else
+				conMain.chType = cobCHT.SelectedIndex;
+
+			openImage.Enabled = conMain.chType == CHType.custom;
+		}
+
+		private void cobCHT_DropDown(object sender, EventArgs e)
+		{
+			cobCHT.Items.Clear();
+			cobCHT.Items.AddRange(new[] { "none", "lines", "thin lines", "square", "custom" });
+
+			foreach (string fname in Directory.EnumerateFiles(Application.StartupPath))
+			{
+				if (fname.EndsWith(".png") ||
+					fname.EndsWith(".bmp") ||
+					fname.EndsWith(".gif") ||
+					fname.EndsWith(".tga"))
+				{
+					cobCHT.Items.Add(fname.Substring(fname.LastIndexOf('\\') + 1));
+				}
+			}
 		}
 
 		public void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -248,32 +280,8 @@ namespace UltraHookInject
 			OpenFileDialog ofd = new OpenFileDialog();
 			if (ofd.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
 
-			switch (conMain.dxVersion)
-			{
-			case DXVersion.DX09:
-				using (var bmp = new Bitmap(ofd.FileName))
-				{
-					setImageRasterized(bmp);
-				}
-				break;
-			case DXVersion.DX10:
-				break;
-			case DXVersion.DX10_1:
-				break;
-			case DXVersion.DX11:
-				Stream str = conMain.customCHBD as Stream;
-				if (str != null) str.Close();
-				conMain.customCHBD = File.Open(ofd.FileName, FileMode.Open, FileAccess.Read);
-				break;
-			case DXVersion.DX11_1:
-				break;
-			case DXVersion.unknown:
-				break;
-			default:
-				break;
-			}
+			TryLoadImage(ofd.FileName);
 
-			conMain.refreshData = true;
 			preview.Invalidate();
 		}
 
@@ -283,12 +291,44 @@ namespace UltraHookInject
 			else conMain.limitFPS = -1;
 		}
 
-		// settings subsection
-
 		private void comboBox1_DropDown(object sender, EventArgs e)
 		{
 			RefreshDDList();
 			isInjected = false;
+		}
+
+		private void checkSettings_CheckedChanged(object sender, EventArgs e)
+		{
+			if (checkSettings.Checked)
+			{
+				DoResize(rsMaxSize.Width, rsMaxSize.Height);
+			}
+			else
+			{
+				DoResize(rsMinSize.Width, rsMinSize.Height);
+			}
+		}
+
+		private void btnStartSearch_Click(object sender, EventArgs e)
+		{
+			timer1.Enabled = true;
+		}
+
+		private void checkAutoInject_CheckedChanged(object sender, EventArgs e)
+		{
+			timer1.Enabled = checkAutoInject.Checked;
+		}
+
+		private void numResX_ValueChanged(object sender, EventArgs e)
+		{
+			conMain.X = (int)numResX.Value;
+			conMain.refreshData = true;
+		}
+
+		private void numResY_ValueChanged(object sender, EventArgs e)
+		{
+			conMain.Y = (int)numResY.Value;
+			conMain.refreshData = true;
 		}
 
 		// Settings Helptools /////////////////////////////////////////////////
@@ -327,9 +367,51 @@ namespace UltraHookInject
 			fs.Close();
 		}
 
+		public void TryLoadImage(string imgname)
+		{
+			if (!File.Exists(imgname)) return;
+
+			switch (conMain.dxVersion)
+			{
+			case DXVersion.DX09:
+				using (var bmp = new Bitmap(imgname))
+				{
+					SetImageRasterized(bmp);
+				}
+				break;
+			case DXVersion.DX10:
+				break;
+			case DXVersion.DX10_1:
+				break;
+			case DXVersion.DX11:
+				Stream str = conMain.customCHBD as Stream;
+				if (str != null) str.Close();
+				conMain.customCHBD = File.Open(imgname, FileMode.Open, FileAccess.Read);
+				break;
+			case DXVersion.DX11_1:
+				break;
+			case DXVersion.unknown:
+				break;
+			default:
+				break;
+			}
+
+			conMain.refreshData = true;
+		}
+
+		private void AppExit()
+		{
+			Application.Exit();
+		}
+
+		private void Minimize()
+		{
+			this.WindowState = FormWindowState.Minimized;
+		}
+
 		// DX09 Helptools /////////////////////////////////////////////////////
 
-		public void setImageRasterized(Bitmap bmp)
+		public void SetImageRasterized(Bitmap bmp)
 		{
 			if (bmp.Width != bmp.Height)
 			{
@@ -496,6 +578,7 @@ namespace UltraHookInject
 			{
 				this.Height = rtHeight.DoResizeStep(this.Height);
 				this.Width = rtWidth.DoResizeStep(this.Width);
+				this.Invalidate();
 			}
 
 			if (conMain.dxVersion == DXVersion.unknown) return;
@@ -511,6 +594,8 @@ namespace UltraHookInject
 			// todo: remove this when drawdot is implemented for other dx versions
 			checkUseDot.Enabled = conMain.dxVersion == DXVersion.DX09;
 
+			if (cobCHT.SelectedIndex >= CHType.custom) TryLoadImage(customImage);
+
 			getOnce = true;
 		}
 
@@ -522,92 +607,74 @@ namespace UltraHookInject
 			resizer.Start();
 		}
 
-		private class ResizeTool
+		private void Form1_Paint(object sender, PaintEventArgs e)
 		{
-			private ResizeStage rsStage;
-			private int rsSpeed;
-			private int rsTarget;
-			private int rsOverlap;
-			private bool rsMaximizing;
-			public bool IsActive { get { return rsStage != ResizeStage.Sleeping; } protected set { } }
+			e.Graphics.DrawRectangle(Pens.Silver, 0, 0, this.Width - 1, this.Height - 1);
+		}
+	}
 
-			public ResizeTool()
+	internal class ResizeTool
+	{
+		private ResizeStage rsStage;
+		private int rsSpeed;
+		private int rsTarget;
+		private int rsOverlap;
+		private bool rsMaximizing;
+		public bool IsActive { get { return rsStage != ResizeStage.Sleeping; } protected set { } }
+
+		public ResizeTool()
+		{
+			rsStage = ResizeStage.Sleeping;
+		}
+
+		public void Set(int current, int target)
+		{
+			if (current == target)
 			{
 				rsStage = ResizeStage.Sleeping;
+				return;
 			}
+			rsTarget = target;
+			rsSpeed = 0;
+			rsMaximizing = current < rsTarget;
+			if (rsMaximizing) rsOverlap = rsTarget + ((rsTarget - current) / 3);
+			else rsOverlap = rsTarget - ((current - rsTarget) / 3);
+			rsStage = ResizeStage.Accelerating;
+		}
 
-			public void Set(int current, int target)
+		public int DoResizeStep(int currentVal)
+		{
+			switch (rsStage)
 			{
-				rsTarget = target;
-				rsSpeed = 0;
-				rsMaximizing = current < rsTarget;
-				if (rsMaximizing) rsOverlap = rsTarget + ((rsTarget - current) / 3);
-				else rsOverlap = rsTarget - ((current - rsTarget) / 3);
-				rsStage = ResizeStage.Accelerating;
-			}
-
-			public int DoResizeStep(int currentVal)
-			{
-				switch (rsStage)
+			case ResizeStage.Sleeping: return currentVal; // do nothing
+			case ResizeStage.Accelerating:
+				if (rsMaximizing) rsSpeed++;
+				else rsSpeed--;
+				if ((rsMaximizing && currentVal > rsTarget) || (!rsMaximizing && currentVal < rsTarget)) rsStage++;
+				return currentVal + rsSpeed;
+			case ResizeStage.Breaking:
+				rsSpeed /= 2;
+				if (rsSpeed <= 10) rsStage++;
+				return currentVal + rsSpeed;
+			case ResizeStage.Reversing:
+				if (rsMaximizing) rsSpeed--;
+				else rsSpeed++;
+				if ((rsMaximizing && currentVal + rsSpeed < rsTarget) || (!rsMaximizing && currentVal + rsSpeed > rsTarget))
 				{
-				case ResizeStage.Sleeping: return currentVal; // do nothing
-				case ResizeStage.Accelerating:
-					if (rsMaximizing) rsSpeed++;
-					else rsSpeed--;
-					if ((rsMaximizing && currentVal > rsTarget) || (!rsMaximizing && currentVal < rsTarget)) rsStage++;
-					return currentVal + rsSpeed;
-				case ResizeStage.Breaking:
-					rsSpeed /= 2;
-					if (rsSpeed <= 10) rsStage++;
-					return currentVal + rsSpeed;
-				case ResizeStage.Reversing:
-					if (rsMaximizing) rsSpeed--;
-					else rsSpeed++;
-					if ((rsMaximizing && currentVal + rsSpeed < rsTarget) || (!rsMaximizing && currentVal + rsSpeed > rsTarget))
-					{
-						rsStage = ResizeStage.Sleeping;
-						return rsTarget;
-					}
-					return currentVal + rsSpeed;
+					rsStage = ResizeStage.Sleeping;
+					return rsTarget;
 				}
-				return currentVal;
+				return currentVal + rsSpeed;
 			}
-
-			private enum ResizeStage
-			{
-				Sleeping,
-				Accelerating,
-				Breaking,
-				Reversing
-			}
+			return currentVal;
 		}
 
-		Random r = new Random();
-		private void lblInfo_Click(object sender, EventArgs e)
+		private enum ResizeStage
 		{
-			DoResize(r.Next(100, 800), r.Next(100, 800)); // wobbel debug demo
-		}
-
-		private void cbxProcessList_TextChanged(object sender, EventArgs e)
-		{
-			this.Text = cbxProcessList.Text;
-		}
-
-		private void checkAutoReInject_CheckedChanged(object sender, EventArgs e)
-		{
-
-		}
-
-		private void checkSettings_CheckedChanged(object sender, EventArgs e)
-		{
-			if (checkSettings.Checked)
-			{
-				DoResize(355, 205);
-			}
-			else
-			{
-				DoResize(355, 70);
-			}
+			Sleeping,
+			Accelerating,
+			Breaking,
+			Reversing
 		}
 	}
 
