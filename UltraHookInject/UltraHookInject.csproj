@@ -81,7 +81,7 @@
   <ItemGroup>
     <Reference Include="EasyHook, Version=2.7.4761.0, Culture=neutral, PublicKeyToken=4b580fca19d0b0c5, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\bin\EasyHook.dll</HintPath>
+      <HintPath>..\lib\EasyHook.dll</HintPath>
     </Reference>
     <Reference Include="MetroObjects, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

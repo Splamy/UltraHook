@@ -72,6 +72,11 @@ namespace UltraHookInject
 					Core.Log("Could not read config.ini -> " + ex.Message);
 				}
 			}
+			else
+			{
+				config = new Dictionary<string, string>();
+				//config.add... TODO
+			}
 
 			try
 			{

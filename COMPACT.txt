@@ -1,9 +1,10 @@
 1) (Add EasyHook Reference to UHI)
 2) Compile both
 3) Run ILMerge Command in "bin" Folder
-4) Remove EasyHook Reference to UHI
-5) Recompile UHI only
-6) Done! Needed Executables are:
+4) Replace old UltraHook.dll with new one
+5) Remove EasyHook Reference to UHI
+6) Recompile UHI only
+7) Done! Needed Executables are:
 	UltraHookInjekt.exe
 	EasyHook32.dll
 	EasyHook64.dll

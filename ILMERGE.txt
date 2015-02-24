@@ -1,1 +1,3 @@
-"C:\Program Files (x86)\ILMerge\ILMerge.exe" /keyfile:UH.snk /targetplatform:v4 /out:./spec/UltraHook.dll UltraHook.dll SharpDX.dll SharpDX.DXGI.dll SharpDX.Direct3D10.dll SharpDX.Direct3D9.dll SharpDX.D3DCompiler.dll EasyHook.dll
+"C:\Program Files (x86)\ILMerge\ILMerge.exe" /targetplatform:v4 /out:./temp/UltraHook.dll UltraHook.dll SharpDX.dll SharpDX.DXGI.dll SharpDX.Direct3D9.dll SharpDX.Direct3D10.dll SharpDX.Direct3D11.dll SharpDX.D3DCompiler.dll SharpDX.Direct2D1.dll SharpDX.Toolkit.dll SharpDX.Toolkit.Graphics.dll SharpDX.Toolkit.Compiler.dll EasyHook.dll
+
+old "C:\Program Files (x86)\ILMerge\ILMerge.exe" /keyfile:UH.snk /targetplatform:v4 /out:./spec/UltraHook.dll UltraHook.dll SharpDX.dll SharpDX.DXGI.dll SharpDX.Direct3D10.dll SharpDX.Direct3D9.dll SharpDX.D3DCompiler.dll EasyHook.dll
